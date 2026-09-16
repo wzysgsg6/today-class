@@ -158,13 +158,29 @@ function renderToday(now) {
     : [];
   const nowMinutes = now.hour * 60 + now.minute;
 
+  if (!Number.isFinite(week)) {
+    $('#todayView').innerHTML = `
+      <div class="notice">
+        <strong>第 1 周日期无效</strong>
+        <p>这里填的是“教学周第 1 周的周一”，不是第一门课的日期。吉林大学 2026–2027 第一学期应填 2026-08-31。</p>
+        <button class="btn btn-primary" id="quickResetBtn" type="button">恢复默认</button>
+      </div>
+    `;
+    $('#quickResetBtn')?.addEventListener('click', applyDefaults);
+    $('#heroStatus').textContent = '请先校准第 1 周日期';
+    return;
+  }
+
   if (week < 1) {
     $('#todayView').innerHTML = `
       <div class="notice">
         <strong>还没到教学周</strong>
-        <p>当前日期在第 1 周之前。可以在设置里核对第 1 周开始日期。</p>
+        <p>当前设置的第 1 周是 ${escapeHtml(state.config.semesterStart)}。如果这不是学校教学周的第一周，请点恢复默认。</p>
+        <button class="btn btn-primary" id="quickResetBtn" type="button">恢复默认（2026-08-31）</button>
       </div>
     `;
+    $('#quickResetBtn')?.addEventListener('click', applyDefaults);
+    $('#heroStatus').textContent = '日期设置可能不对';
     return;
   }
 
@@ -247,7 +263,7 @@ function render() {
   if (!state.data || !state.config) return;
   const now = getShanghaiNow();
   const week = calcWeek(now.dateStr, state.config.semesterStart);
-  const title = week >= 1 && week <= state.config.totalWeeks
+  const title = Number.isFinite(week) && week >= 1 && week <= state.config.totalWeeks
     ? `第 ${week} 周 · ${DAY_NAMES[now.weekday]}`
     : '今日课表';
 
@@ -302,12 +318,16 @@ function saveSettings() {
   showToast('已保存');
 }
 
-function resetSettings() {
+function applyDefaults() {
   localStorage.removeItem('tt_config');
   loadConfig();
-  openSettings();
   render();
   showToast('已恢复默认');
+}
+
+function resetSettings() {
+  applyDefaults();
+  openSettings();
 }
 
 function setView(view) {
@@ -362,7 +382,7 @@ async function init() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=2').catch(() => {});
   });
 }
 
