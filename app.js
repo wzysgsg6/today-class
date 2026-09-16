@@ -17,7 +17,7 @@ function bytesFromB64url(value) {
   return bytes;
 }
 
-async function decryptPayload(payload, keyB64) {
+async function decryptBytes(payload, keyB64) {
   if (!payload || payload.v !== 1 || payload.alg !== 'A256GCM') {
     throw new Error('不支持的数据格式');
   }
@@ -28,12 +28,44 @@ async function decryptPayload(payload, keyB64) {
     false,
     ['decrypt']
   );
-  const plain = await crypto.subtle.decrypt(
+  return new Uint8Array(await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv: bytesFromB64url(payload.iv) },
     key,
     bytesFromB64url(payload.data)
-  );
-  return JSON.parse(new TextDecoder().decode(plain));
+  ));
+}
+
+async function decryptPayload(payload, keyB64) {
+  return JSON.parse(new TextDecoder().decode(await decryptBytes(payload, keyB64)));
+}
+
+async function openOriginalPdf() {
+  if (!state.keyB64) {
+    showToast('缺少访问密钥');
+    return;
+  }
+
+  const win = window.open('', '_blank');
+  if (win) {
+    try {
+      win.document.title = '原版 PDF';
+      win.document.body.innerHTML = '<p style="padding:24px;color:#111827">正在解密原版 PDF…</p>';
+    } catch (_) {}
+  }
+
+  try {
+    const response = await fetch('./schedule.pdf.enc.json');
+    if (!response.ok) throw new Error('PDF 数据读取失败');
+    const payload = await response.json();
+    const bytes = await decryptBytes(payload, state.keyB64);
+    const blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    if (win) win.location.href = blobUrl;
+    else window.location.href = blobUrl;
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
+  } catch (error) {
+    if (win) win.close();
+    showToast(error.message || 'PDF 打开失败');
+  }
 }
 
 function parseISODateUTC(value) {
@@ -341,6 +373,7 @@ function setView(view) {
 
 function bindEvents() {
   $('#settingsBtn').addEventListener('click', openSettings);
+  $('#pdfBtn').addEventListener('click', openOriginalPdf);
   $('#closeSettingsBtn').addEventListener('click', closeSettings);
   $('#saveSettingsBtn').addEventListener('click', saveSettings);
   $('#resetSettingsBtn').addEventListener('click', resetSettings);
@@ -361,6 +394,7 @@ async function init() {
   if (!state.keyB64) {
     $('#todayView').innerHTML = '<div class="notice"><strong>缺少访问密钥</strong><p>请从完整链接打开本页。</p></div>';
     $('#heroStatus').textContent = '缺少访问密钥';
+    $('#pdfBtn')?.classList.add('hidden');
     return;
   }
 
@@ -382,7 +416,7 @@ async function init() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=2').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=3').catch(() => {});
   });
 }
 
