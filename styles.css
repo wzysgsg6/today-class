@@ -115,6 +115,27 @@ button, input { font: inherit; }
 .icon-btn:active { transform: scale(.94); }
 .icon-btn:hover { background: rgba(255, 255, 255, .2); }
 
+.hero-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+}
+
+.pdf-btn {
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 999px;
+  padding: 9px 15px;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease;
+}
+
+.pdf-btn:active { transform: scale(.96); }
+.pdf-btn:hover { background: rgba(255, 255, 255, .22); }
+
 .icon-btn-light {
   border-color: var(--line);
   background: #f3f4f6;
