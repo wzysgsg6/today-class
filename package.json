@@ -1,0 +1,8 @@
+{
+  "name": "today-class",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "encrypt": "node scripts/encrypt.mjs"
+  }
+}
