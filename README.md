@@ -12,7 +12,7 @@
 
 ## 本地构建
 
-公开仓库不保存明文课表。更新时：
+公开仓库不保存明文课表。首次加密：
 
 ```bash
 node scripts/encrypt.mjs ../today-class-private/schedule.json ./data.json
@@ -25,6 +25,12 @@ https://<用户名>.github.io/today-class/#k=<key>
 ```
 
 作为访问链接。
+
+更新已有链接时复用同一个密钥，链接不变：
+
+```bash
+node scripts/encrypt.mjs ../today-class-private/schedule.json ./data.json --key <原来的-key>
+```
 
 ## 部署
 
