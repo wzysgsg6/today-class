@@ -8,6 +8,7 @@
 - 默认展示今天；可切换到本周视图
 - 数据使用 AES-GCM 加密，密钥只放在链接的 URL fragment（`#k=...`）中，不会发送给服务器
 - 支持添加到手机主屏幕，离线也能打开
+- 页面内可查看原版 PDF；PDF 同样以 AES-GCM 密文形式保存，密钥与课表共用
 - 学期开始日期和总周数可在页面内调整
 
 ## 本地构建
@@ -30,6 +31,7 @@ https://<用户名>.github.io/today-class/#k=<key>
 
 ```bash
 node scripts/encrypt.mjs ../today-class-private/schedule.json ./data.json --key <原来的-key>
+node scripts/encrypt-binary.mjs ../today-class-private/研究生选课.pdf ./schedule.pdf.enc.json --key <原来的-key>
 ```
 
 ## 部署
