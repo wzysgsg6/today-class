@@ -1,4 +1,4 @@
-const CACHE = 'today-class-v5';
+const CACHE = 'today-class-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,6 @@ const ASSETS = [
   './app.js',
   './manifest.json',
   './data.json',
-  './schedule.pdf.enc.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png'
