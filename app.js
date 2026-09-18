@@ -54,8 +54,14 @@ async function openOriginalPdf() {
   }
 
   try {
-    const response = await fetch('./schedule.pdf.enc.json');
-    if (!response.ok) throw new Error('PDF 数据读取失败');
+    let response;
+    try {
+      response = await fetch('./schedule.pdf.enc.json?v=20260918', { cache: 'no-store' });
+      if (!response.ok) throw new Error('PDF 数据读取失败');
+    } catch (_) {
+      response = await fetch('./schedule.pdf.enc.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error('PDF 数据读取失败');
+    }
     const payload = await response.json();
     const bytes = await decryptBytes(payload, state.keyB64);
     const blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
@@ -64,7 +70,10 @@ async function openOriginalPdf() {
     setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
   } catch (error) {
     if (win) win.close();
-    showToast(error.message || 'PDF 打开失败');
+    const message = error?.name === 'OperationError'
+      ? '密钥不匹配：请用 QQ 完整链接重新打开一次，或到设置里更新访问密钥'
+      : (error.message || 'PDF 打开失败');
+    showToast(message);
   }
 }
 
@@ -371,6 +380,7 @@ function loadConfig() {
 function openSettings() {
   $('#semesterStartInput').value = state.config.semesterStart;
   $('#totalWeeksInput').value = state.config.totalWeeks;
+  $('#keyInput').value = state.keyB64 || '';
   $('#settingsSheet').classList.remove('hidden');
 }
 
@@ -389,12 +399,24 @@ function showToast(message) {
 function saveSettings() {
   const semesterStart = $('#semesterStartInput').value;
   const totalWeeks = Math.min(30, Math.max(1, Number($('#totalWeeksInput').value) || 18));
+  const keyValue = $('#keyInput').value.trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(semesterStart)) {
     showToast('请选择有效的日期');
     return;
   }
   state.config = { semesterStart, totalWeeks };
   localStorage.setItem('tt_config', JSON.stringify(state.config));
+  if (keyValue && keyValue !== state.keyB64) {
+    state.keyB64 = keyValue;
+    localStorage.setItem('tt_key', keyValue);
+    const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    params.set('k', keyValue);
+    history.replaceState(null, '', `${location.pathname}${location.search}#${params.toString()}`);
+    closeSettings();
+    showToast('密钥已保存，正在重新加载');
+    setTimeout(() => location.reload(), 500);
+    return;
+  }
   closeSettings();
   render();
   showToast('已保存');
@@ -467,7 +489,7 @@ async function init() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=4').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=5').catch(() => {});
   });
 }
 
