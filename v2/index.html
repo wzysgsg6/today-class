@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d4ed8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="今日课表">
+  <title>今日课表</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow" id="semesterLabel">正在识别…</p>
+          <h1 id="todayTitle">今日课表</h1>
+          <p class="today-date" id="todayDate"></p>
+        </div>
+        <button class="icon-btn" id="settingsBtn" type="button" aria-label="设置">⚙</button>
+      </div>
+      <div class="hero-status" id="heroStatus">正在读取课表…</div>
+    </header>
+
+    <nav class="tabs" aria-label="视图切换">
+      <button class="tab is-active" type="button" data-view="today">今天</button>
+      <button class="tab" type="button" data-view="week">本周</button>
+      <button class="tab" type="button" data-view="all">全部</button>
+    </nav>
+
+    <main class="content">
+      <section id="todayView" aria-live="polite">
+        <div class="loading-card">
+          <div class="loading-dot"></div>
+          <div>
+            <strong>正在解密课表</strong>
+            <p>第一次打开需要几秒钟。</p>
+          </div>
+        </div>
+      </section>
+      <section id="weekView" class="hidden" aria-live="polite"></section>
+      <section id="allView" class="hidden" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <div class="sheet-backdrop hidden" id="settingsSheet">
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet-head">
+        <div>
+          <p class="eyebrow">识别设置</p>
+          <h2 id="settingsTitle">教学周</h2>
+        </div>
+        <button class="icon-btn icon-btn-light" id="closeSettingsBtn" type="button" aria-label="关闭">×</button>
+      </div>
+      <label class="field">
+        <span>第 1 周周一的日期</span>
+        <input type="date" id="semesterStartInput">
+        <small>这里填“教学周第 1 周的周一”，不是第一门课的日期。吉林大学 2026–2027 第一学期应填 2026-08-31。</small>
+      </label>
+      <label class="field">
+        <span>学期总周数</span>
+        <input type="number" id="totalWeeksInput" min="1" max="30" step="1">
+      </label>
+      <label class="field">
+        <span>访问密钥</span>
+        <input type="text" id="keyInput" autocomplete="off" spellcheck="false" placeholder="QQ 链接里 #k= 后面的内容">
+        <small>如果换手机或页面提示缺少密钥，请粘贴 QQ 完整链接里 <code>#k=</code> 后面的密钥。</small>
+      </label>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" type="button" id="resetSettingsBtn">恢复默认</button>
+        <button class="btn btn-primary" type="button" id="saveSettingsBtn">保存</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+  <noscript><p class="noscript">需要开启 JavaScript 才能自动识别课表。</p></noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
+
