@@ -223,6 +223,7 @@ function renderToday(now) {
         <p>当前已超过第 ${state.config.totalWeeks} 周。</p>
       </div>
     `;
+    $('#heroStatus').textContent = '本学期已结束';
     return;
   }
 
@@ -231,10 +232,11 @@ function renderToday(now) {
       <div class="empty-state">
         <div>
           <strong>今天没有课</strong>
-          <p>${escapeHtml(DAY_NAMES[now.weekday])} · 第 ${week} 周 · ${escapeHtml(formatDateCN(now.dateStr))}</p>
+          <p>第 ${week} 周 · ${escapeHtml(formatDateCN(now.dateStr))}</p>
         </div>
       </div>
     `;
+    $('#heroStatus').textContent = '今天没有课';
     return;
   }
 
