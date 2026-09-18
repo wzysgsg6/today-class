@@ -68,6 +68,11 @@
         <span>学期总周数</span>
         <input type="number" id="totalWeeksInput" min="1" max="30" step="1">
       </label>
+      <label class="field">
+        <span>访问密钥</span>
+        <input type="text" id="keyInput" autocomplete="off" spellcheck="false" placeholder="QQ 链接里 #k= 后面的内容">
+        <small>如果 PDF 解密失败或换手机，请粘贴 QQ 完整链接里 <code>#k=</code> 后面的密钥。</small>
+      </label>
       <div class="sheet-actions">
         <button class="btn btn-ghost" type="button" id="resetSettingsBtn">恢复默认</button>
         <button class="btn btn-primary" type="button" id="saveSettingsBtn">保存</button>
