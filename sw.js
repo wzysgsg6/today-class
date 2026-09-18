@@ -1,4 +1,4 @@
-const CACHE = 'today-class-v4';
+const CACHE = 'today-class-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -13,7 +13,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((cache) => Promise.all(ASSETS.map((url) => cache.add(url).catch(() => null))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
