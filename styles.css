@@ -145,7 +145,7 @@ button, input { font: inherit; }
 
 .tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   margin: 18px 0 14px;
   padding: 5px;
@@ -159,7 +159,7 @@ button, input { font: inherit; }
 .tab {
   border: 0;
   border-radius: 12px;
-  padding: 11px 14px;
+  padding: 11px 8px;
   background: transparent;
   color: var(--muted);
   font-weight: 800;
