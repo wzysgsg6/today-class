@@ -144,6 +144,19 @@ function teacherFor(course, week) {
   return course.teacherByWeek?.[String(week)] || course.teacher || '';
 }
 
+function teacherLabel(course) {
+  if (course.teacher) return course.teacher;
+  if (!course.teacherByWeek) return '';
+  const groups = {};
+  for (const [week, teacher] of Object.entries(course.teacherByWeek)) {
+    if (!groups[teacher]) groups[teacher] = [];
+    groups[teacher].push(week);
+  }
+  return Object.entries(groups)
+    .map(([teacher, weeks]) => `${weeks.join('/')}周 ${teacher}`)
+    .join('；');
+}
+
 function courseStatus(course, nowMinutes) {
   const start = minutesOfDay(course.start);
   const end = minutesOfDay(course.end);
@@ -293,6 +306,40 @@ function renderWeek(now) {
   $('#weekView').innerHTML = `<div class="week-list">${days.join('')}</div>`;
 }
 
+function renderAll(now) {
+  const allCourses = [...(state.data.courses || [])]
+    .sort((a, b) => a.day - b.day || minutesOfDay(a.start) - minutesOfDay(b.start));
+  const days = [];
+  for (let day = 1; day <= 7; day += 1) {
+    const courses = allCourses.filter((course) => course.day === day);
+    const isToday = day === now.weekday;
+    days.push(`
+      <section class="day-card ${isToday ? 'is-today' : ''}">
+        <div class="day-head">
+          <h2>${DAY_NAMES[day]}${isToday ? ' · 今天' : ''}</h2>
+          <span>${courses.length ? `${courses.length} 门` : '无课'}</span>
+        </div>
+        ${courses.length ? courses.map((course) => `
+          <div class="mini-course">
+            <time>${escapeHtml(course.periods)}<br>${escapeHtml(course.start)}</time>
+            <div>
+              <strong>${escapeHtml(course.name)}</strong>
+              <small>${escapeHtml(weeksLabel(course))}${teacherLabel(course) ? ` · ${escapeHtml(teacherLabel(course))}` : ''}${course.room ? `<br>${escapeHtml(course.room)}` : ''}</small>
+            </div>
+          </div>
+        `).join('') : ''}
+      </section>
+    `);
+  }
+  $('#allView').innerHTML = `
+    <div class="section-label">
+      <span>本学期全部课程</span>
+      <span>${allCourses.length} 门</span>
+    </div>
+    <div class="week-list">${days.join('')}</div>
+  `;
+}
+
 function render() {
   if (!state.data || !state.config) return;
   const now = getShanghaiNow();
@@ -308,6 +355,7 @@ function render() {
 
   renderToday(now);
   renderWeek(now);
+  renderAll(now);
 }
 
 function loadConfig() {
@@ -371,6 +419,7 @@ function setView(view) {
   });
   $('#todayView').classList.toggle('hidden', view !== 'today');
   $('#weekView').classList.toggle('hidden', view !== 'week');
+  $('#allView').classList.toggle('hidden', view !== 'all');
 }
 
 function bindEvents() {
@@ -418,7 +467,7 @@ async function init() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=3').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=4').catch(() => {});
   });
 }
 
